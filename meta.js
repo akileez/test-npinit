@@ -61,15 +61,27 @@ task('homedir', async () => {
   // log(file)
   //
 
-  const conf = `npm config list`
-  const conf_name = `npm config get init.author.name`
-  const conf_email = `npm config get init.author.email`
-  const conf_github = `npm config get init.author.github`
-  const conf_vers = `npm config get init.author.version`
+  // using npm config list with json output. Much better
+  const conf = 'npm config list --json'
+
+  const conf_name = 'npm config get init.author.name'
+  const conf_email = 'npm config get init.author.email'
+  const conf_github = 'npm config get init.author.github'
+  const conf_vers = 'npm config get init.version'
+
+  // testing to see if this is any faster...nope.
+  // try {
+  //   const tst = await exec(conf_name)
+  //   const tst1 = await exec(conf_github)
+  //   log((tst.stdout).toString().replace(/(\n)/, ''))
+  //   log((tst1.stdout).toString().replace(/(\n)/, ''))
+  // } catch (error) {
+  //   log.fail(error)
+  // }
 
   // reminder: test use with execSync as well
   // const ecmd = await exec(cmd)
-  // const econf = await exec(conf)
+  const econf = await exec(conf)
 
   // exec
   // const econf_name = await exec(conf_name)
@@ -77,20 +89,34 @@ task('homedir', async () => {
   // const econf_github = await exec(conf_github)
   // const econf_vers = await exec(conf_vers)
   // // log.log(ecmd.stdout)
-  // // log.log(econf.stdout)
-  // log(econf_name.stdout)
-  // log(econf_email.stdout)
-  // log(econf_github.stdout)
-  // log(econf_vers.stdout)
+
+  // log((econf_name.stdout).toString().replace(/(\n)/, ''))
+  // log((econf_email.stdout).toString().replace(/(\n)/, ''))
+  // log((econf_github.stdout).toString().replace(/(\n)/, ''))
+  // log((econf_vers.stdout).toString().replace(/(\n)/, ''))
 
   // execSync
-  const econf_name = execSync(conf_name)
-  const econf_email = execSync(conf_email)
-  const econf_github = execSync(conf_github)
-  const econf_vers = execSync(conf_vers)
+  // const econf_name = execSync(conf_name)
+  // const econf_email = execSync(conf_email)
+  // const econf_github = execSync(conf_github)
+  // const econf_vers = execSync(conf_vers)
 
-  log(econf_name.toString().replace(/(\n)/, ''))
-  log(econf_github.toString().replace(/(\n)/, ''))
+  // log(econf_name.toString().replace(/(\n)/, ''))
+  // log(econf_github.toString().replace(/(\n)/, ''))
+
+
+  // Much faster by a factor of ~3.5 (total time ~255ms)
+  // than using individual exec commands above (~955ms)
+  // must account for four(4) promises resolving verus one (1)
+  const eee = JSON.parse((econf.stdout).toString())
+  const fff = eee['init.author.name']
+  // const ggg = eee['init.author.email']
+  const hhh = eee['init.author.github']
+  const iii = eee['init.version']
+  log(fff)
+  log(hhh)
+  log(iii)
+
 })
 
 task.run(process.argv[2])
