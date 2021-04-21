@@ -1,7 +1,5 @@
 'use strict'
 
-// scaffolding out npinit piece by piece
-
 // internal code not yet relased.
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
@@ -17,13 +15,19 @@ const exec = promisify(require('child_process').exec)
 
 // init values in main program but simulated here
 const isPublic = false
+const errFlag = true
+const isFakeUser = false
 const conf = {
-  verbose: true
+  verbose: true,
+  meta: {
+    remote: 'addRemote',
+    name: 'me',
+    packageName: 'doodoo',
+    push: true
+  }
 }
 
 // not sold on task.process api. wip
-// just using here to organize code.
-// most likely will not be in final version
 const gitInit = task.process('gitInit',
   async (input, output, opts) => {
     // using arrays to concatenate the commands
@@ -60,9 +64,46 @@ const gitInit = task.process('gitInit',
 
 })
 
+const gitaddRemote = task.process('gitaddRemote',
+  async () => {
+    // clean up this if logic!! this was originally constructed to
+    // opt out of async/callback code.
+    if (isPublic && conf.meta.remote === 'addRemote' || errFlag === true) {
+      // REMINDER: why am I using fake user? didn't like error message
+      // then again the remainder of the code needs to be intergrated
+      if (isFakeUser) {
+        log.warn('github username is not correct', 'addRemote')
+        log.warn('process exiting')
+      }
+
+      // removed array bracket around addRemote command string
+      // ensure this update is made to npinit to at least get it
+      // working on npm
+      const addRemote = 'git remote add origin https://github.com/'
+        + conf.meta.name
+        + '/'
+        + conf.meta.packageName
+        + '.git'
+
+      // working locally. clean up later
+      // Need token access for https github login. research and document
+      try {
+        await exec(addRemote, {cwd: process.cwd()})
+        log('repo:', 'https remote added', 'yellow')
+        if (conf.meta.push) log('repo:', 'username and password needed for https push', 'red')
+      } catch (err) {
+        log.fail(err)
+      }
+    } else {
+      return
+    }
+
+})
+
 // testing git init process; working but output not clean
 task('init', async () => {
   await gitInit('working', '???')
+  await gitaddRemote('is gitaddRemote', 'working????')
 })
 // remove .git directory
 task('clean', async () => {
