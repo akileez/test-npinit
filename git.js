@@ -1,6 +1,8 @@
 'use strict'
 
-// internal code not yet relased.
+// scaffolding out npinit piece by piece
+
+// internal code not yet relased (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
 const {task, log} = require('../../lib/cli/tasks')
@@ -28,6 +30,8 @@ const conf = {
 }
 
 // not sold on task.process api. wip
+// just using here to organize code.
+// most likely will not be in final version
 const gitInit = task.process('gitInit',
   async (input, output, opts) => {
     // using arrays to concatenate the commands
@@ -64,6 +68,7 @@ const gitInit = task.process('gitInit',
 
 })
 
+// task.process api - a simple wrapper function for the logger. really nothing complex!!!!
 const gitaddRemote = task.process('gitaddRemote',
   async () => {
     // clean up this if logic!! this was originally constructed to
@@ -89,9 +94,11 @@ const gitaddRemote = task.process('gitaddRemote',
       // Need token access for https github login. research and document
       try {
         await exec(addRemote, {cwd: process.cwd()})
+        // log.event here
         log('repo:', 'https remote added', 'yellow')
         if (conf.meta.push) log('repo:', 'username and password needed for https push', 'red')
       } catch (err) {
+        // reminder to make this fail and study output
         log.fail(err)
       }
     } else {
