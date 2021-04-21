@@ -1,4 +1,4 @@
 # test-npinit
 
-Documenting process of reworking npinit and relearning git.
+Documenting the process of re-working [npinit](https://github.com/akileez/npinit) and re-learning git.
 
