@@ -10,6 +10,7 @@ const {task, log} = require('../../lib/cli/tasks')
 // line were one color only.
 
 // will need to adapt as the api changes internally???
+// and clean up the language
 task('help', () => {
   const help = `
   Usage:  npinit <packageName> [options]
