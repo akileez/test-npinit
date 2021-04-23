@@ -81,4 +81,4 @@ task('help', () => {
   log.log(help)
 })
 
-task.run(process.argv[2])
+task.run('help')
