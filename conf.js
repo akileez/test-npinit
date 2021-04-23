@@ -136,6 +136,12 @@ if (help) {
   // HUGE DISCOVERY 4 ME!! its always the little things in life.
   // usage
   require('./usage')
+  // NOTE by commentting out the run command (task.run('help')) in `usage.js`,
+  // I am able to run it here as a part of this task. Awesome!!!
+  // pluggin/middleware now exists for my coding endeavors.
+
+  // NOTE must keep track of naming conventions though.
+  task.run('help')
   process.exit(0)
 }
 

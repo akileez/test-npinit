@@ -81,4 +81,4 @@ task('help', () => {
   log.log(help)
 })
 
-task.run('help')
+// task.run('help')
