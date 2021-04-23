@@ -17,6 +17,10 @@ const {argv} = require('../../lib/cli/argh')
 // meGuesses that this will be the beginning of a plugin/middleware solution
 // const usage = require('./usage')
 
+// Change the position of the require for usage. This enables the usage/help `task`
+// to appear in the task list on the command line.
+require('./usage')
+
 function projName () {
   if (chk4test) return 'test-' + Math.floor(Math.random() * (1000 - 101) + 101)
   else if (validProjName) return slug(argv.argv[0].toString())
@@ -135,7 +139,7 @@ log.debug('argv undef? %s', argvUNDEF)
 if (help) {
   // HUGE DISCOVERY 4 ME!! its always the little things in life.
   // usage
-  require('./usage')
+  // require('./usage') --> moved to above
   // NOTE by commentting out the run command (task.run('help')) in `usage.js`,
   // I am able to run it here as a part of this task. Awesome!!!
   // pluggin/middleware now exists for my coding endeavors.
