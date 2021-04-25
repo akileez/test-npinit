@@ -1,0 +1,35 @@
+{
+  "name": "{{packageName}}",
+  "version": "{{version}}",
+  "description": "{{description}}",
+  "main": "index.js",
+  "scripts": {
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/{{name}}/{{packageName}}.git"
+  },
+  "author": {
+    "name": "{{author}}",
+    "email": "{{email}}",
+    "url": "{{url}}"
+  },
+  "homepage": "https://github.com/{{name}}/{{packageName}}",
+  "bugs": {
+    "url": "https://github.com/{{name}}/{{packageName}}/issues"
+  },
+  "license": "{{license}}",
+  "keywords": [],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "files": [
+    "LICENSE",
+    "index.js",
+    "README.md"
+  ]
+}
