@@ -6,7 +6,7 @@ const {task, log, read, write} = require('../../lib/cli/tasks')
 // expand -- a very minor version of https://github.com/jonschlinkert/expand
 const expand = require('../../lib/string/expand')
 // https://github.com/overlookmotel/promise-methods
-const {forEach} = require('../../lib/async/promise')
+const {forEach} = require('../../lib/async/each')
 // eliminate -- adopted from https://github.com/terkelg/eliminate
 const {eliminate} = require('../../lib/file/eliminate')
 const {join} = require('path')
