@@ -39,7 +39,7 @@ const meta = task.process('meta',
   }
 })
 
-task('run', async () => {
+task('nconf', async () => {
   // only here for reference. this is the old code
   // working on retrieval below.
   await meta()
@@ -47,7 +47,7 @@ task('run', async () => {
 
 // testing the retrieval of data within .npmrc
 // none of this is particularly performant but its working
-task('homedir', async () => {
+task('meta', async () => {
   const tstfile = $HOME+`/.npmrc`
   log.debug($HOME)
   log.debug(tstfile) // this aint gonna work on Windows!!!
@@ -119,4 +119,4 @@ task('homedir', async () => {
 
 })
 
-task.run(process.argv[2])
+// task.run(process.argv[2])

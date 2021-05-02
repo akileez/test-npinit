@@ -63,16 +63,16 @@ async function tmpls (opts) {
   // clean this up...old code but now working
   await forEach(files, async (file) => {
     if (isOr(file, 'gitignore', 'travis.yml', 'eslintrc')) {
-      filePath = './.' + file
+      filePath = 'tmp/.' + file
     } else {
-      filePath = './' + file
+      filePath = 'tmp/' + file
     }
     await processFile(filePath, 'lib/templates/', file, opts)
   }).then(async () => {
     if (license && license !== true) lic = license.toLowerCase()
     else lic = 'no'
 
-    await processFile('./LICENSE', 'lib/license/', lic, opts)
+    await processFile('tmp/LICENSE', 'lib/license/', lic, opts)
   })
 
 }
@@ -89,11 +89,11 @@ async function processFile (filePath, srcdir, file, opts) {
   })
 }
 
-task('run', async () => {
+task('tmpls', async () => {
   await tmpls(opts)
 })
 
-task('clean', async () => {
+task('clean_tmpls', async () => {
   await eliminate('.eslintrc')
   await eliminate('.gitignore')
   await eliminate('LICENSE')

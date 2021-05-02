@@ -40,7 +40,7 @@ function isEmpty (arr) {
 }
 
 // init task
-task('init', async () => {
+task('install', async () => {
   if (!opts.install) {
     log.warn('Install not enabled, skipping')
     return
@@ -57,10 +57,10 @@ task('init', async () => {
 })
 
 // clean up
-task('clean', async () => {
+task('clean_install', async () => {
   await eliminate('node_modules')
   await eliminate('package-lock.json')
   // await eliminate('package.json')
 })
 
-task.run(process.argv[2])
+// task.run(process.argv[2])

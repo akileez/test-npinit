@@ -108,13 +108,13 @@ const gitaddRemote = task.process('gitaddRemote',
 })
 
 // testing git init process; working but output not clean
-task('init', async () => {
+task('git', async () => {
   await gitInit('working', '???')
   await gitaddRemote('is gitaddRemote', 'working????')
 })
 // remove .git directory
-task('clean', async () => {
+task('clean_git', async () => {
   await eliminate('./.git')
 })
 
-task.run(process.argv[2])
+// task.run(process.argv[2])
