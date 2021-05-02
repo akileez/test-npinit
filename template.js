@@ -3,6 +3,13 @@
 Test file for playing out the idea of an individual project file tasks
 !! Not working with index.js
 
+NOTE: working set of templates in lib/templates do not match internal
+working set. will upload those files as I clean up other work. Only
+difference between the set is the naming convention. internal set are
+named exactly as they would appear in a project whereas the set presently
+on github is using the older naming variation. a major change to
+the internals of this projects and allows for cleaner code.
+
 */
 
 // internal code not yet relased (anything referencing ../lib/..)
