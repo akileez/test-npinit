@@ -153,7 +153,7 @@ task('init', () => {
       license: false,
       travis: false
     }))
-  } else if ((priv && pub) || priv) {
+  } else if ((priv && pub)) {
     conf.set('meta', extend(meta, {
       type: 'public',
       remote: 'addRemote',
