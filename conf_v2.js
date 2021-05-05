@@ -33,9 +33,23 @@ const chk4help      = validName && argv.argv[0] === 'help' || argv.h || argv.hel
 const chk4test      = validName && argv.argv[0] === 'test'
 const validProjName = validName && !chk4help && !chk4test
 
-// call version and help early
-if (argv.v || argv.version) vers()
-if (argv.h || argv.help) usage()
+// call version and help early; removed function calls
+if (argv.v || argv.version) {
+  // simluation due to testing
+  const appvers = '0.0.1'
+  log.info('npinit version, %s', appvers)
+  log.info('npinit version, %s', require('./package.json').version)
+  process.exit(0)
+}
+// removed function call. wired in help task.
+// Note: setting up help in this fashion means that 'help'
+// does not appear in the task list. Will need to require
+// it outside this conditional block for alternative.
+if (argv.h || argv.help) {
+  require('./usage.js')
+  task.run('help')
+  process.exit(0)
+}
 
 // testing additional task.memo to ensure no data polution
 args.set('args', argv)
@@ -201,7 +215,6 @@ task('init', async () => {
     url:     options.get('url')         || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
   }))
 
-
   log.log(conf.values())
 })
 
@@ -210,21 +223,6 @@ function projName () {
   if (chk4test) return 'test-' + Math.floor(Math.random() * (1000 - 101) + 101)
   else if (validProjName) return slug(argv.argv[0].toString())
   else return 'dry-run'
-}
-
-function vers () {
-  // simluation due to testing
-  const appvers = '0.0.1'
-  log.info('npinit version, %s', appvers)
-  // not running yet. package.json file does not exist
-  // within internally testing directory
-  // log.info('npinit version, %s', require('./package.json').version)
-  process.exit(0)
-}
-
-function usage () {
-  log('HELP! not wired in yet.')
-  process.exit(0)
 }
 
 function makeArray (str) {
