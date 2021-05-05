@@ -22,17 +22,6 @@ const conf = task.memo()
 const args = task.memo()
 const argv = task.args
 
-// Most options adjusted to deal with new code. Some older code still exists
-// as I work thru ideas.
-const dryRun        = argv.dry
-const noCommands    = process.argv.length <= 2 && process.stdin.isTTY
-const argvUNDEF     = argv.argv === undefined
-const validName     = !argvUNDEF && process.argv[2] === argv.argv[0]
-const noProjName    = (argvUNDEF || !validName) && !(argv.v || dryRun)
-const chk4help      = validName && argv.argv[0] === 'help' || argv.h || argv.help
-const chk4test      = validName && argv.argv[0] === 'test'
-const validProjName = validName && !chk4help && !chk4test
-
 // call version and help early; removed function calls
 if (argv.v || argv.version) {
   // simluation due to testing
@@ -160,7 +149,7 @@ task('init', async () => {
   log('pub?', pub, 'priv?', priv)
 
   // private repo if option -g or -github
-  if (!pub && priv && !chk4test) {
+  if (!pub && priv) {
     conf.set('meta', extend(meta, {
       type: 'private',
       remote: 'addRemote',
@@ -219,9 +208,26 @@ task('init', async () => {
 })
 
 function projName () {
+  // Most options adjusted to deal with new code. Some older code still exists
+  // as I work thru ideas.
+  // Moved following constants here. Now cleaning.
+  // Adjustments made as if tasks will be used.
+  const dryRun        = argv.dry
+  const noCommands    = process.argv.length <= 2 && process.stdin.isTTY
+  const argvUNDEF     = argv.argv === undefined
+  const validName     = !argvUNDEF && process.argv[3] === argv.argv[1]
+  // log.log(process.argv[3], argv.argv[1])
+  const noProjName    = (argvUNDEF || !validName) && !(argv.v || dryRun)
+  // no need to chk4help as help is called before init.
+  // const chk4help      = validName && argv.argv[1] === 'help' || argv.h || argv.help
+  const chk4test      = validName && argv.argv[1] === 'test'
+  // const validProjName = validName && !chk4help && !chk4test
+  const validProjName = validName && !chk4test && argv.argv[1] !== undefined
   // Fix this logic
   if (chk4test) return 'test-' + Math.floor(Math.random() * (1000 - 101) + 101)
-  else if (validProjName) return slug(argv.argv[0].toString())
+  if (argv.argv[1]) return validProjName ? slug(argv.argv[1].toString()) : 'dry-run'
+  // not needed due to changes
+  // if (validProjName) return slug(argv.argv[0].toString())
   else return 'dry-run'
 }
 
