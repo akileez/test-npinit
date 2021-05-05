@@ -132,6 +132,8 @@ task('init', async () => {
   // initialize metadata settings
   if (options.has('verbose')) conf.set('verbose', true)
   if (options.has('dry')) conf.set('dryrun', true)
+  if (options.has('description'))
+    conf.set('meta', extend(meta, {description: options.get('description')}))
 
   // work around in action...
   conf.set('meta', extend(meta, {packageName: projName()}))
@@ -190,13 +192,13 @@ task('init', async () => {
 
   // may need to reverse the order here. think this is correct.
   conf.set('meta', extend(meta, {
-    license: options.has('license')    || data['init.license']       || 'ISC',
-    version: options.has('pkgversion') || data['init.version']       || '0.1.0',
-    author:  options.has('author')     || data['init.author.name']   || 'Your Name',
-    email:   options.has('email')      || data['init.author.email']  || 'your@email.com',
-    name:    options.has('name')       || data['init.author.github'] || 'githubName',
+    license:  options.get('license')    || data['init.license']       || 'ISC',
+    version:  options.get('pkgversion') || data['init.version']       || '0.1.0',
+    author:   options.get('author')     || data['init.author.name']   || 'Your Name',
+    email:    options.get('email')      || data['init.author.email']  || 'your@email.com',
+    name:     options.get('name')       || data['init.author.github'] || 'githubName',
     // need to fix this url
-    url:     options.has('url')        || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
+    url:     options.get('url')         || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
   }))
 
 
