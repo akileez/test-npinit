@@ -57,15 +57,16 @@ const meta = {
   year: new Date().getFullYear().toString(),
   packageName: '', // projectName()
   type: 'private',
+  // not using repo just yet.
   repo: 'none',
   remote: false,
   push: false,
-  author: argv.author,
-  email: argv.email,
-  name: argv.user,
-  url: argv.url,
-  version: argv.pkgv,
-  license: argv.license,
+  author: '',
+  email: '',
+  name: '',
+  url: '',
+  version: '',
+  license: '',
   description: 'An awesome module being created'
 }
 // initial settings for files delivered
@@ -98,7 +99,7 @@ log('what is the setting for conf.git', conf.get('git'))
 log('has files', conf.has('files'))
 log.log(conf.get('files'))
 
-task('init', () => {
+task('init', async () => {
   // the goal of init is to populate configuration options
   // with command line options and process logic
 
@@ -114,6 +115,7 @@ task('init', () => {
   options.set('dry',         argv.dry     || argv.dryRun  || false)
   options.set('help',        argv.help    || argv.h       || false)
   options.set('hub',         argv.hub     || false)
+  // remote not being used
   options.set('remote',      argv.remote  || false)
   options.set('description', argv.desc    || false)
   options.set('email',       argv.email   || false)
@@ -167,6 +169,7 @@ task('init', () => {
   }
 
   // REMINDER: No configuration for "hub"
+  // REMINDER: option remote not in use
 
   // install dependencies configuration
   // check for user install dependencies
@@ -178,6 +181,24 @@ task('init', () => {
     conf.set('packages', makeArray(options.get('dep')))
     conf.set('install', true)
   }
+
+  // incorporate meta.js here to complete initial fill of configuration.
+  const npmconfig = 'npm config list --json'
+  // included child_process.exec in tasks
+  const econf = await task.exec(npmconfig)
+  const data = JSON.parse((econf.stdout).toString())
+
+  // may need to reverse the order here. think this is correct.
+  conf.set('meta', extend(meta, {
+    license: options.has('license')    || data['init.license']       || 'ISC',
+    version: options.has('pkgversion') || data['init.version']       || '0.1.0',
+    author:  options.has('author')     || data['init.author.name']   || 'Your Name',
+    email:   options.has('email')      || data['init.author.email']  || 'your@email.com',
+    name:    options.has('name')       || data['init.author.github'] || 'githubName',
+    // need to fix this url
+    url:     options.has('url')        || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
+  }))
+
 
   log.log(conf.values())
 })
