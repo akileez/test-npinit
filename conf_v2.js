@@ -241,10 +241,10 @@ function projName () {
   if (ctest) return 'test-project-'
     + Math.floor(Math.random() * (1000 - 101) + 101)
 
-  if (args[1]) return vpnam ? slug(args[1].toString()) : 'dry-run'
-
   // default project name if invalid or none given
-  else return 'test-project'
+  return args[1] && vpnam
+    ? slug(args[1].toString())
+    : 'test-project'
 }
 
 function makeArray (str) {
