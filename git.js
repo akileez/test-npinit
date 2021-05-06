@@ -2,7 +2,7 @@
 
 // scaffolding out npinit piece by piece
 
-// internal code not yet relased (anything referencing ../lib/..)
+// internal code not yet relased. (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
 const {task, log} = require('../../lib/cli/tasks')
@@ -10,20 +10,15 @@ const {task, log} = require('../../lib/cli/tasks')
 // exists -- internal --fs.access with promise wrapper
 const { exists, eliminate } = require('../../lib/file/eliminate')
 
-// node stuff
-const {promisify} = require('util')
-const exec = promisify(require('child_process').exec)
-
-
 // init values in main program but simulated here
-const isPublic = false
+const isPublic = true
 const errFlag = true
 const isFakeUser = false
 const conf = {
   verbose: true,
   meta: {
     remote: 'addRemote',
-    name: 'me',
+    name: 'akileez',
     packageName: 'doodoo',
     push: true
   }
@@ -50,7 +45,7 @@ const gitInit = task.process('gitInit',
     // switch to try/catch for error handling
     // and this is fugly!!! but this is how my code originates
     try {
-      const doit = await exec(cmd, {cwd: process.cwd()})
+      const doit = await task.exec(cmd, {cwd: process.cwd()})
       const gitExists = await exists('./.git')
       if (conf.verbose) log('git init, add and commit\n'+doit.stdout)
       else if (gitExists) {
@@ -81,19 +76,26 @@ const gitaddRemote = task.process('gitaddRemote',
         log.warn('process exiting')
       }
 
-      // removed array bracket around addRemote command string
-      // ensure this update is made to npinit to at least get it
-      // working on npm
-      const addRemote = 'git remote add origin https://github.com/'
+      // begin change
+      const addRemote = 'git remote add origin git@github.com:'
         + conf.meta.name
         + '/'
         + conf.meta.packageName
         + '.git'
+      // removed array bracket around addRemote command string
+      // ensure this update is made to npinit to at least get it
+      // working on npm
+      // const addRemote = 'git remote add origin https://github.com/'
+      //   + conf.meta.name
+      //   + '/'
+      //   + conf.meta.packageName
+      //   + '.git'
+
 
       // working locally. clean up later
       // Need token access for https github login. research and document
       try {
-        await exec(addRemote, {cwd: process.cwd()})
+        await task.exec(addRemote, {cwd: process.cwd()})
         // log.event here
         log('repo:', 'https remote added', 'yellow')
         if (conf.meta.push) log('repo:', 'username and password needed for https push', 'red')
@@ -107,10 +109,27 @@ const gitaddRemote = task.process('gitaddRemote',
 
 })
 
+// adding gitPush. Must refactor gitaddRemote before this works correctly.
+const gitPush = task.process('gitPush',
+  async () => {
+    if (isPublic && conf.meta.push) {
+      var pushGit = 'git push origin master'
+
+      try {
+        const aaa = await task.exec(pushGit)
+        log(aaa.stdout)
+        ('repo:', 'pushed to github', 'yellow')
+      } catch (err) {
+        log.fail(err)
+      }
+    }
+})
+
 // testing git init process; working but output not clean
 task('git', async () => {
   await gitInit('working', '???')
   await gitaddRemote('is gitaddRemote', 'working????')
+  await gitPush('pushing', 'git?')
 })
 // remove .git directory
 task('clean_git', async () => {
