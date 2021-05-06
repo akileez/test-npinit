@@ -40,10 +40,10 @@ if (argv.h || argv.help) {
   process.exit(0)
 }
 
-// testing additional task.memo to ensure no data polution
-args.set('args', argv)
-args.set('keeda', 'bananas')
-log.log(args.values())
+// // testing additional task.memo to ensure no data polution
+// args.set('args', argv)
+// args.set('keeda', 'bananas')
+// log.log(args.values())
 
 // playing around with a different style of setting up config options
 // Also, using a different type of cache than I normally use.
@@ -58,7 +58,7 @@ log.log(args.values())
 const meta = {
   date: new Date().toLocaleString(),
   year: new Date().getFullYear().toString(),
-  packageName: '', // projectName()
+  packageName: '',
   type: 'private',
   // not using repo just yet.
   repo: 'none',
@@ -97,10 +97,10 @@ conf.set('meta', meta)
 // check what the conf looks loke
 // log.log(conf.values())
 // check to see if i can get individual values
-log('what is the setting for conf.git', conf.get('git'))
+// log('what is the setting for conf.git', conf.get('git'))
 // check a alternative way. cannot access deeply nested objects!
-log('has files', conf.has('files'))
-log.log(conf.get('files'))
+// log('has files', conf.has('files'))
+// log.log(conf.get('files'))
 
 task('init', async () => {
   // the goal of init is to populate configuration options
@@ -112,14 +112,12 @@ task('init', async () => {
   options.set('verbose',     argv.verbose || false)
   options.set('git',         argv.g       || argv.git     || false)
   // change push to noPush??? argv naturally have a 'push' method
-  options.set('push',        argv.p       || argv['push'] || false)
+  options.set('push',        argv.p       || argv.push    || false)
   options.set('dev',         argv.dev     || argv.D       || false)
   options.set('dep',         argv.dep     || argv.d       || false)
   options.set('dry',         argv.dry     || argv.dryRun  || false)
   options.set('help',        argv.help    || argv.h       || false)
   options.set('hub',         argv.hub     || false)
-  // remote not being used
-  options.set('remote',      argv.remote  || false)
   options.set('description', argv.desc    || false)
   options.set('email',       argv.email   || false)
   options.set('name',        argv.user    || false)
@@ -131,7 +129,7 @@ task('init', async () => {
 
   // const opts = conf.values()
   // log.log(options.values())
-  log('options has verbose?', options.has('verbose'))
+  // log('options has verbose?', options.has('verbose'))
   // initialize metadata settings
   if (options.has('verbose')) conf.set('verbose', true)
   if (options.has('dry')) conf.set('dryrun', true)
@@ -148,11 +146,12 @@ task('init', async () => {
   const priv = options.has('git')
   log('pub?', pub, 'priv?', priv)
 
-  // private repo if option -g or -github
+  // private repo -g --git
   if (!pub && priv) {
     conf.set('meta', extend(meta, {
       type: 'private',
-      remote: 'addRemote',
+      remote: options.has('hub') ? 'hubCreate' : 'addRemote',
+      repo: 'git',
       push: false
     }))
     conf.set('files', extend(files, {
@@ -160,10 +159,13 @@ task('init', async () => {
       license: false,
       travis: false
     }))
-  } else if ((priv && pub)) {
+  }
+  // public repo -gp --git --push
+  if ((pub && priv)) {
     conf.set('meta', extend(meta, {
       type: 'public',
-      remote: 'addRemote',
+      remote: options.has('hub') ? 'hubCreate' : 'addRemote',
+      repo: 'git',
       push: true
     }))
     conf.set('files', extend(files, {
@@ -172,9 +174,22 @@ task('init', async () => {
       travis: true
     }))
   }
+  // private project no repo no options
+  if ((!pub && !priv)) {
+    conf.set('meta', extend(meta, {
+      type: 'private',
+      remote: 'none',
+      repo: 'none',
+      push: false
+    }))
+    conf.set('files', extend(files, {
+      gitignore: false,
+      license: false,
+      travis: false
+    }))
+  }
 
-  // REMINDER: No configuration for "hub"
-  // REMINDER: option remote not in use
+  // fourth case (pub && !priv) is eqivalent to the default settings
 
   // install dependencies configuration
   // check for user install dependencies
@@ -208,27 +223,28 @@ task('init', async () => {
 })
 
 function projName () {
-  // Most options adjusted to deal with new code. Some older code still exists
-  // as I work thru ideas.
-  // Moved following constants here. Now cleaning.
-  // Adjustments made as if tasks will be used.
-  const dryRun        = argv.dry
-  const noCommands    = process.argv.length <= 2 && process.stdin.isTTY
-  const argvUNDEF     = argv.argv === undefined
-  const validName     = !argvUNDEF && process.argv[3] === argv.argv[1]
-  // log.log(process.argv[3], argv.argv[1])
-  const noProjName    = (argvUNDEF || !validName) && !(argv.v || dryRun)
-  // no need to chk4help as help is called before init.
-  // const chk4help      = validName && argv.argv[1] === 'help' || argv.h || argv.help
-  const chk4test      = validName && argv.argv[1] === 'test'
-  // const validProjName = validName && !chk4help && !chk4test
-  const validProjName = validName && !chk4test && argv.argv[1] !== undefined
-  // Fix this logic
-  if (chk4test) return 'test-' + Math.floor(Math.random() * (1000 - 101) + 101)
-  if (argv.argv[1]) return validProjName ? slug(argv.argv[1].toString()) : 'dry-run'
-  // not needed due to changes
-  // if (validProjName) return slug(argv.argv[0].toString())
-  else return 'dry-run'
+  // renamed constants to tidy code up.
+  // everything relevant
+  const args = task.args.argv
+  const undef = args === undefined
+  // no commands -- future use
+  const nocom = process.argv.length <= 2 && process.stdin.isTTY
+  // valid name
+  const vname = !undef && process.argv[3] === args[1]
+  // no project name -- future use
+  const nopro = (undef || !vname) && !(args.v || args.dry)
+  // check for 'test'
+  const ctest = vname && args[1] === 'test'
+  // valid project name
+  const vpnam = vname && !ctest && args[1] !== undefined
+
+  if (ctest) return 'test-project-'
+    + Math.floor(Math.random() * (1000 - 101) + 101)
+
+  if (args[1]) return vpnam ? slug(args[1].toString()) : 'dry-run'
+
+  // default project name if invalid or none given
+  else return 'test-project'
 }
 
 function makeArray (str) {
