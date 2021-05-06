@@ -19,15 +19,15 @@ const extend = require('../lib/object/extend')
 // new code added to tasks. memo -- a miniture cache, args -- argh passthru
 // all in effort to facilitate this project.
 const conf = task.memo()
-const args = task.memo()
+// const args = task.memo()
 const argv = task.args
 
 // call version and help early; removed function calls
 if (argv.v || argv.version) {
   // simluation due to testing
   const appvers = '0.0.1'
-  log.info('npinit version, %s', appvers)
-  log.info('npinit version, %s', require('./package.json').version)
+  log.log('npinit version, %s', appvers)
+  log.log('npinit version, %s', require('./package.json').version)
   process.exit(0)
 }
 // removed function call. wired in help task.
@@ -60,7 +60,6 @@ const meta = {
   year: new Date().getFullYear().toString(),
   packageName: '',
   type: 'private',
-  // not using repo just yet.
   repo: 'none',
   remote: false,
   push: false,
@@ -106,12 +105,15 @@ task('init', async () => {
   // the goal of init is to populate configuration options
   // with command line options and process logic
 
+  const npmconfig = 'npm config list --json'
+  const econf = await task.exec(npmconfig)
+  const data = JSON.parse((econf.stdout).toString())
+
   // init a cache to handle command line args
   const options = task.memo()
   // populate the cache with args
   options.set('verbose',     argv.verbose || false)
   options.set('git',         argv.g       || argv.git     || false)
-  // change push to noPush??? argv naturally have a 'push' method
   options.set('push',        argv.p       || argv.push    || false)
   options.set('dev',         argv.dev     || argv.D       || false)
   options.set('dep',         argv.dep     || argv.d       || false)
@@ -131,15 +133,38 @@ task('init', async () => {
   // log.log(options.values())
   // log('options has verbose?', options.has('verbose'))
   // initialize metadata settings
+
+  // Global options
+  conf.set('git', options.has('git'))
   if (options.has('verbose')) conf.set('verbose', true)
   if (options.has('dry')) conf.set('dryrun', true)
+  // install dependencies configuration
+  // check for user install dependencies
+  if (options.has('dev')) {
+    conf.set('devpackages', makeArray(options.get('dev')))
+    conf.set('install', true)
+  }
+  if (options.has('dep')) {
+    conf.set('packages', makeArray(options.get('dep')))
+    conf.set('install', true)
+  }
+
+  // Global Meta options
+  // work around in action...
+  conf.set('meta', extend(meta, {packageName: projName()}))
+  conf.set('meta', extend(meta, {
+    license:  options.get('license')    || data['init.license']       || 'ISC',
+    version:  options.get('pkgversion') || data['init.version']       || '0.1.0',
+    author:   options.get('author')     || data['init.author.name']   || 'Your Name',
+    email:    options.get('email')      || data['init.author.email']  || 'your@email.com',
+    name:     options.get('name')       || data['init.author.github'] || 'githubName',
+    // need to fix this url
+    url:     options.get('url')         || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
+  }))
   if (options.has('description'))
     conf.set('meta', extend(meta, {description: options.get('description')}))
 
-  // work around in action...
-  conf.set('meta', extend(meta, {packageName: projName()}))
-  conf.set('git', options.has('git'))
-
+  // Global Meta and File options
   // git repository configuration
   // check for private and public projects being created together
   const pub = options.has('push')
@@ -156,6 +181,7 @@ task('init', async () => {
     }))
     conf.set('files', extend(files, {
       gitignore: true,
+      eslintrc: true,
       license: false,
       travis: false
     }))
@@ -170,6 +196,7 @@ task('init', async () => {
     }))
     conf.set('files', extend(files, {
       gitignore: true,
+      eslintrc: true,
       license: true,
       travis: true
     }))
@@ -188,36 +215,7 @@ task('init', async () => {
       travis: false
     }))
   }
-
   // fourth case (pub && !priv) is eqivalent to the default settings
-
-  // install dependencies configuration
-  // check for user install dependencies
-  if (options.has('dev')) {
-    conf.set('devpackages', makeArray(options.get('dev')))
-    conf.set('install', true)
-  }
-  if (options.has('dep')) {
-    conf.set('packages', makeArray(options.get('dep')))
-    conf.set('install', true)
-  }
-
-  // incorporate meta.js here to complete initial fill of configuration.
-  const npmconfig = 'npm config list --json'
-  // included child_process.exec in tasks
-  const econf = await task.exec(npmconfig)
-  const data = JSON.parse((econf.stdout).toString())
-
-  // may need to reverse the order here. think this is correct.
-  conf.set('meta', extend(meta, {
-    license:  options.get('license')    || data['init.license']       || 'ISC',
-    version:  options.get('pkgversion') || data['init.version']       || '0.1.0',
-    author:   options.get('author')     || data['init.author.name']   || 'Your Name',
-    email:    options.get('email')      || data['init.author.email']  || 'your@email.com',
-    name:     options.get('name')       || data['init.author.github'] || 'githubName',
-    // need to fix this url
-    url:     options.get('url')         || data['init.author.url']    || 'https://github.com/' //+ opts.meta.name + '/' + opts.meta.packageName,
-  }))
 
   log.log(conf.values())
 })
