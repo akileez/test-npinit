@@ -127,7 +127,7 @@ task('init', async () => {
     conf.set('meta', extend(meta, umeta))
     conf.set('files', extend(files, ufile))
     log.log(conf.values())
-    // exit out of init to eventually continue one...
+    // exit out of init to eventually continue on...
     return
   }
 
