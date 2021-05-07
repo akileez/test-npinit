@@ -93,7 +93,7 @@ conf.set('dryrun', false)
 conf.set('files', files)
 conf.set('meta', meta)
 
-// check what the conf looks loke
+// check what the conf looks like
 // log.log(conf.values())
 // check to see if i can get individual values
 // log('what is the setting for conf.git', conf.get('git'))
@@ -105,9 +105,31 @@ task('init', async () => {
   // the goal of init is to populate configuration options
   // with command line options and process logic
 
-  const npmconfig = 'npm config list --json'
-  const econf = await task.exec(npmconfig)
-  const data = JSON.parse((econf.stdout).toString())
+  // testing reading a user config
+  // argv.config should be the path of the config file
+  // e.g. node conf_v2.js init --config ./.npinit.js
+  if (argv.config) {
+    log.log(argv.config)
+    // need to sanitize this
+    const file = require(argv.config)
+    // log.log(file)
+    // to a more suitable format
+    let umeta = file.meta
+    let ufile = file.files
+    let udefs = file.defs
+    // user defined settings
+    conf.set('install', udefs.install)
+    conf.set('devpackages', udefs.devpackages)
+    conf.set('packages', udefs.packages)
+    conf.set('git', udefs.git)
+    conf.set('verbose', udefs.verbose)
+    conf.set('dryrun', udefs.dryrun)
+    conf.set('meta', extend(meta, umeta))
+    conf.set('files', extend(files, ufile))
+    log.log(conf.values())
+    // exit out of init to eventually continue one...
+    return
+  }
 
   // init a cache to handle command line args
   const options = task.memo()
@@ -148,6 +170,11 @@ task('init', async () => {
     conf.set('packages', makeArray(options.get('dep')))
     conf.set('install', true)
   }
+
+  // moved lower to NOT slow down this process any further than necessary
+  const npmconfig = 'npm config list --json'
+  const econf = await task.exec(npmconfig)
+  const data = JSON.parse((econf.stdout).toString())
 
   // Global Meta options
   // work around in action...
