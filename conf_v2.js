@@ -13,9 +13,20 @@
 // internal code not yet relased. (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
-const {task, log} = require('../lib/cli/tasks')
+const {task, log, read, write} = require('../../lib/cli/tasks')
 // just like Object.assign()
-const extend = require('../lib/object/extend')
+const extend = require('../../lib/object/extend')
+// expand -- a very minor version of https://github.com/jonschlinkert/expand
+const expand = require('../../lib/string/expand')
+// https://github.com/overlookmotel/promise-methods
+const {forEach} = require('../../lib/async/each')
+
+// node stuff
+const {join} = require('path')
+const {mkdir} = require('fs')
+const {promisify} = require('util')
+const mkdirp = promisify(mkdir)
+
 // new code added to tasks. memo -- a miniture cache, args -- argh passthru
 // all in effort to facilitate this project.
 const conf = task.memo()
@@ -247,6 +258,79 @@ task('init', async () => {
   log.log(conf.values())
 })
 
+// Additions below added for testing flow control of the app
+// Need to confim if project directory is created and files
+// moved to that location after init is run (also for a user config)
+
+// process createDir in index.js
+task('createDir', async () => {
+  const pkgName = conf.get('meta').packageName
+  const dest = __dirname + '/' + pkgName
+  log.debug(pkgName)
+  try {
+    await mkdirp(dest, {recursive: true})
+
+  } catch (err) {
+    // do something with error
+    log.fail(err)
+  }
+  // log.debug(__dirname)
+  process.chdir(dest)
+})
+
+// simulate tmpls.js
+task('template', async () => {
+  const pkgName = conf.get('meta').packageName
+  const license = conf.get('meta').license
+  const tmpl = conf.get('files')
+  const dest = __dirname + '/' + pkgName
+  const src = 'lib/templates/'
+  let files = []
+  let lic
+
+  Object.keys(tmpl).forEach((file) => {
+    if (tmpl[file]) {
+      if (isOr(file, 'gitignore', 'eslintrc')) return files.push('.'+file)
+      if (isOr(file, 'index', 'test')) return files.push(file+'.js')
+      if (file === 'package') return files.push(file+'.json')
+      if (file === 'readme') return files.push(file.toUpperCase()+'.md')
+      if (file === 'travis') return files.push('.'+file+'.yml')
+    }
+  })
+  // fix display
+  log('Templates')
+  log.debug(files)
+
+  // clean this up...old code but now working
+  await forEach(files, async (file) => {
+    const filePath = dest + '/' + file
+
+    await processFile(filePath, src, file)
+  }).then(async () => {
+    if (license && license !== true) lic = license.toLowerCase()
+    else lic = 'no'
+
+    await processFile(`${dest}/LICENSE`, 'lib/license/', lic)
+  })
+
+  // clean this code. no error checking yet.
+  async function processFile (filePath, srcdir, file) {
+    const res = await read(join(__dirname, srcdir + file))
+    // log(res)
+    const tmpl = await expand(res, conf.get('meta'))
+    // log.dir(tmpl)
+    await write(filePath, tmpl).then(() => {
+      if (srcdir === 'lib/license/') file = file.toUpperCase() + ' LICENSE'
+      log('create:', file, 'white')
+    })
+  }
+})
+
+// simulate index.js
+task('build', async () => {
+  task.series(['init', 'createDir', 'template'])
+})
+
 function projName () {
   // renamed constants to tidy code up.
   // everything relevant
@@ -285,6 +369,14 @@ function slug (str) {
     .replace(/[-_\s]+/g, '-')
     .replace(/^-/g, '')
     .toLowerCase()
+}
+
+function isOr(value) {
+  const sliced = (a, b, c) => Array.prototype.slice.call(a, b, c)
+  const args = sliced(arguments, 1, arguments.length)
+  return args.some(function (val) {
+    return (value === val)
+  })
 }
 
 task.run(process.argv[2])
