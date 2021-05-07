@@ -50,11 +50,11 @@ async function tmpls (opts) {
 
   Object.keys(tmpl).forEach((file) => {
     if (tmpl[file]) {
-      if (isOr(file, 'gitignore', 'eslintrc')) return files.push(file)
-      if (isOr(file, 'index', 'test')) return files.push(file + '.js')
-      if (file === 'package') return files.push(file + '.json')
-      if (file === 'readme') return files.push(file.toUpperCase() + '.md')
-      if (file === 'travis') return files.push(file + '.yml')
+      if (isOr(file, 'gitignore', 'eslintrc')) return files.push('.'+file)
+      if (isOr(file, 'index', 'test')) return files.push(file+'.js')
+      if (file === 'package') return files.push(file+'.json')
+      if (file === 'readme') return files.push(file.toUpperCase()+'.md')
+      if (file === 'travis') return files.push('.'+file+'.yml')
     }
   })
   // fix display
@@ -62,11 +62,8 @@ async function tmpls (opts) {
 
   // clean this up...old code but now working
   await forEach(files, async (file) => {
-    if (isOr(file, 'gitignore', 'travis.yml', 'eslintrc')) {
-      filePath = 'tmp/.' + file
-    } else {
-      filePath = 'tmp/' + file
-    }
+    const filePath = 'tmp/' + file
+
     await processFile(filePath, 'lib/templates/', file, opts)
   }).then(async () => {
     if (license && license !== true) lic = license.toLowerCase()
