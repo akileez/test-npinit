@@ -51,6 +51,20 @@ module.exports = {
     // project version number
     version: '0.1.1',
     // license
+    /*
+      List of license files to enter:
+      'AFL3',       'AGPL3',  'APACHE',   'ARTISTIC',
+      'BSD0',       'BSD2',   'BSD3',     'BSD3C',
+      'BSD4',       'BSL',    'CC4',      'CC4SA',
+      'CC0',        'CECILL', 'ECL',      'EPL',
+      'EPL2',       'EUPL',   'EUPL2',    'GPL2',
+      'GPL3',       'ISC',    'LGPL1',    'LGPL2',
+      'LGPL3',      'MIT0',   'MIT',      'MPL',
+      'MSPL',       'MSRL',   'MULANPSL', 'NCSA',
+      'NO',         'ODBL',   'OFL',      'OSL',
+      'POSTGRESQL', 'UN',     'UPL',      'VIM',
+      'WTFPL',      'ZLIB'
+    */
     license: 'MIT',
     // package/project description
     description: 'Reading in from a config file'
