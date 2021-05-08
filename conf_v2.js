@@ -372,13 +372,17 @@ task('install', async () => {
   }
 })
 
+// simulate index.js
 task('build', async () => {
   task.series(['init', 'createDir', 'template', 'install'])
 })
 
+// adding clean task during testing
 task('clean', async () => {
   // await eliminate('./myStuff')
   await eliminate('./test-project')
+  // await eliminate('node_modules')
+  // await eliminate('package-lock.json')
 })
 
 function projName () {
