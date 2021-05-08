@@ -19,13 +19,17 @@ const extend = require('../../lib/object/extend')
 // expand -- a very minor version of https://github.com/jonschlinkert/expand
 const expand = require('../../lib/string/expand')
 // https://github.com/overlookmotel/promise-methods
-const {forEach} = require('../../lib/async/each')
+const {forEach, parallel} = require('../../lib/async/each')
+// eliminate -- adopted from https://github.com/terkelg/eliminate
+const {eliminate} = require('../../lib/file/eliminate')
 
 // node stuff
 const {join} = require('path')
 const {mkdir} = require('fs')
 const {promisify} = require('util')
 const mkdirp = promisify(mkdir)
+// using execFile here
+const execFile = promisify(require('child_process').execFile)
 
 // new code added to tasks. memo -- a miniture cache, args -- argh passthru
 // all in effort to facilitate this project.
@@ -276,6 +280,7 @@ task('createDir', async () => {
   }
   // log.debug(__dirname)
   process.chdir(dest)
+  log.debug(process.cwd())
 })
 
 // simulate tmpls.js
@@ -300,6 +305,7 @@ task('template', async () => {
   // fix display
   log('Templates')
   log.debug(files)
+  log.debug(process.cwd())
 
   // clean this up...old code but now working
   await forEach(files, async (file) => {
@@ -326,9 +332,53 @@ task('template', async () => {
   }
 })
 
-// simulate index.js
+// simulate install.js
+task('install', async () => {
+  const install = conf.get('install')
+  const devpackages = conf.get('devpackages')
+  const packages = conf.get('packages')
+
+  if (!install) {
+    log.warn('Install not enabled, skipping')
+    return
+  }
+
+  log('Dependencies:')
+  log.debug(process.cwd())
+
+  const commands = [
+    async () => await installDependencies('--save-dev', devpackages),
+    async () => await installDependencies('--save', packages)
+  ]
+
+  await parallel(commands)
+
+  async function installDependencies (cmd, bundles) {
+    if (isEmpty(bundles)) return
+
+    await forEach(bundles, async (module) => {
+      const output = await execFile('npm', ['install', cmd, module])
+      if (argv.verbose) {
+        if (output.stderr) log.warn(`module: ${module}\n`+ output.stderr)
+        if (output.stdout) log.info('installed module: %s %s', module, output.stdout)
+      } else {
+        log('module:', output.stderr ? module + ' (err)' : module, 'red')
+      }
+    })
+  }
+
+  function isEmpty (arr) {
+    return !arr.length
+  }
+})
+
 task('build', async () => {
-  task.series(['init', 'createDir', 'template'])
+  task.series(['init', 'createDir', 'template', 'install'])
+})
+
+task('clean', async () => {
+  // await eliminate('./myStuff')
+  await eliminate('./test-project')
 })
 
 function projName () {
