@@ -1,9 +1,10 @@
 // internal code not yet relased. (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
-const {task, log} = require('../../lib/cli/tasks')
+const {task, log, forEach, parallel} = require('../../lib/cli/tasks')
 // https://github.com/overlookmotel/promise-methods
-const {forEach, parallel} = require('../../lib/async/each')
+// --> now integrated into tasks
+// const {forEach, parallel} = require('../../lib/async/each')
 // eliminate -- adopted from https://github.com/terkelg/eliminate
 const {eliminate} = require('../../lib/file/eliminate')
 // argh -- https://github.com/3rd-Eden/argh -- using it for ages

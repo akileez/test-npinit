@@ -13,13 +13,14 @@
 // internal code not yet relased. (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
-const {task, log, read, write} = require('../../lib/cli/tasks')
+const {task, log, read, write, forEach, parallel} = require('../../lib/cli/tasks')
 // just like Object.assign()
 const extend = require('../../lib/object/extend')
 // expand -- a very minor version of https://github.com/jonschlinkert/expand
 const expand = require('../../lib/string/expand')
 // https://github.com/overlookmotel/promise-methods
-const {forEach, parallel} = require('../../lib/async/each')
+// --> now integrated into tasks
+// const {forEach, parallel} = require('../../lib/async/each')
 // eliminate -- adopted from https://github.com/terkelg/eliminate
 const {eliminate} = require('../../lib/file/eliminate')
 

@@ -7,11 +7,12 @@ Test file for playing out the idea of an individual license task
 // internal code not yet relased (anything referencing ../lib/..)
 // tasks -- adopted from https://github.com/ricardobeat/taks
 // log -- internal -- just custom wrappers for console, process.stdout/stderr
-const {task, log} =  require('../../lib/cli/tasks')
+const {task, log, forEach} =  require('../../lib/cli/tasks')
 // adopted from https://github.com/shannonmoeller/ygor/tree/master/packages/file
 const File = require('../../lib/file/file')
 // adopted from https://github.com/overlookmotel/promise-methods
-const {forEach} = require('../../lib/async/each')
+// --> now integrated into tasks
+// const {forEach} = require('../../lib/async/each')
 // eliminate -- adopted from https://github.com/terkelg/eliminate
 const {eliminate} = require('../../lib/file/eliminate')
 // https://github.com/folder/readdir
